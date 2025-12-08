@@ -18,10 +18,10 @@ Object test_hello(Object /* self */)
 }
 
 extern "C"
-void Init_test()
+void Init_camlib()
 {
-    Class rb_cTest =
-      define_class("Test")
+    Class rb_cCamlib =
+      define_class("Camlib")
       .define_method("initialize", &test_initialize)
       .define_method("hello", &test_hello);
 }

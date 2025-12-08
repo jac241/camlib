@@ -7,7 +7,11 @@ set(CMAKE_FIND_FRAMEWORK NEVER)
 find_package(Ruby "3.4")
 execute_process(COMMAND brew --prefix jemalloc OUTPUT_VARIABLE JEMALLOC_PREFIX OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-add_library(camlib SHARED library.cpp)
+add_library(camlib MODULE library.cpp)
+set_target_properties(camlib PROPERTIES PREFIX "")
+if(APPLE)
+    set_target_properties(camlib PROPERTIES SUFFIX ".bundle")
+endif()
 
 # FFI
 if (MSVC) # This will include Clang on Windows
@@ -31,3 +35,5 @@ target_include_directories(camlib PRIVATE ${PROJECT_SOURCE_DIR})
 target_include_directories(camlib PRIVATE ${PROJECT_SOURCE_DIR}/include)
 
 target_link_libraries(camlib PRIVATE ${Ruby_LIBRARY} ${JEMALLOC_LIBRARIES} ${JEMALLOC_PREFIX}/lib/libjemalloc.dylib)
+
+install(TARGETS camlib DESTINATION .)

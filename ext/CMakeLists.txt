@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.25)
-project(rice-test)
+project(camlib)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -7,25 +7,27 @@ set(CMAKE_FIND_FRAMEWORK NEVER)
 find_package(Ruby "3.4")
 execute_process(COMMAND brew --prefix jemalloc OUTPUT_VARIABLE JEMALLOC_PREFIX OUTPUT_STRIP_TRAILING_WHITESPACE)
 
+add_library(camlib SHARED library.cpp)
 
-if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
-    add_compile_definitions(-D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE)
-    add_compile_options(/bigobj /utf-8)
-    # The default of /EHsc crashes Ruby when calling longjmp with optimizations on (/O2)
-    string(REGEX REPLACE "/EHsc" "/EHs" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    add_compile_definitions(-D_CRT_SECURE_NO_WARNINGS)
-elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    add_compile_options(-ftemplate-backtrace-limit=0)
-    # https://github.com/doxygen/doxygen/issues/9269#issuecomment-1094975328
-    add_compile_options(unittest PRIVATE -Wa,-mbig-obj)
-endif ()
+# FFI
+if (MSVC) # This will include Clang on Windows
+    find_package(unofficial-libffi CONFIG REQUIRED)
+    target_link_libraries(${PROJECT_NAME} PRIVATE unofficial::libffi::libffi)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE HAVE_LIBFFI)
+elseif (APPLE)
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(FFI REQUIRED IMPORTED_TARGET libffi)
+    target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE PkgConfig::FFI)
+else()
+    find_library(FFI_LIBRARY NAMES ffi REQUIRED)
+    target_link_libraries(${PROJECT_NAME} PRIVATE ${FFI_LIBRARY})
+    target_compile_definitions(${PROJECT_NAME} PRIVATE HAVE_LIBFFI)
+endif()
+target_compile_definitions(${PROJECT_NAME} PRIVATE HAVE_LIBFFI)
 
-add_library(rice-test SHARED library.cpp)
 
-target_include_directories(rice-test PRIVATE ${Ruby_INCLUDE_DIR} ${Ruby_CONFIG_INCLUDE_DIR} ${JEMALLOC_PREFIX}/include)
-target_include_directories(rice-test PRIVATE ${PROJECT_SOURCE_DIR})
-target_include_directories(rice-test PRIVATE ${PROJECT_SOURCE_DIR}/include)
+target_include_directories(camlib PRIVATE ${Ruby_INCLUDE_DIR} ${Ruby_CONFIG_INCLUDE_DIR} ${JEMALLOC_PREFIX}/include)
+target_include_directories(camlib PRIVATE ${PROJECT_SOURCE_DIR})
+target_include_directories(camlib PRIVATE ${PROJECT_SOURCE_DIR}/include)
 
-target_link_libraries(rice-test ${Ruby_LIBRARY} ${JEMALLOC_LIBRARIES} ${JEMALLOC_PREFIX}/lib/libjemalloc.dylib)
+target_link_libraries(camlib PRIVATE ${Ruby_LIBRARY} ${JEMALLOC_LIBRARIES} ${JEMALLOC_PREFIX}/lib/libjemalloc.dylib)

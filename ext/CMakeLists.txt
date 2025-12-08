@@ -19,8 +19,11 @@ if(MSVC)
     target_link_libraries(camlib PRIVATE unofficial::libffi::libffi)
 else()
     pkg_check_modules(FFI REQUIRED IMPORTED_TARGET libffi)
-    pkg_check_modules(JEMALLOC REQUIRED IMPORTED_TARGET jemalloc)
-    target_link_libraries(camlib PRIVATE PkgConfig::FFI PkgConfig::JEMALLOC)
+    pkg_check_modules(JEMALLOC IMPORTED_TARGET jemalloc) # jemalloc is now optional
+    target_link_libraries(camlib PRIVATE PkgConfig::FFI)
+    if(JEMALLOC_FOUND) # Link jemalloc only if found
+        target_link_libraries(camlib PRIVATE PkgConfig::JEMALLOC)
+    endif()
 endif()
 
 target_compile_definitions(camlib PRIVATE HAVE_LIBFFI)

@@ -1,13 +1,16 @@
 cmake_minimum_required(VERSION 3.26)
 project(camlib)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 set(CMAKE_FIND_FRAMEWORK NEVER)
 find_package(Ruby REQUIRED)
 find_package(PkgConfig REQUIRED)
+find_package(OpenCV REQUIRED)
 
-add_library(camlib MODULE library.cpp)
+add_library(camlib MODULE camlib.cpp
+        Webcam.cpp
+        Webcam.hpp)
 set_target_properties(camlib PROPERTIES PREFIX "")
 if(APPLE)
     set_target_properties(camlib PROPERTIES SUFFIX ".bundle")
@@ -28,10 +31,10 @@ endif()
 
 target_compile_definitions(camlib PRIVATE HAVE_LIBFFI)
 
-target_include_directories(camlib PRIVATE ${Ruby_INCLUDE_DIR} ${Ruby_CONFIG_INCLUDE_DIR})
+target_include_directories(camlib PRIVATE ${Ruby_INCLUDE_DIR} ${Ruby_CONFIG_INCLUDE_DIR} ${OpenCV_INCLUDE_DIRS})
 target_include_directories(camlib PRIVATE ${PROJECT_SOURCE_DIR})
 target_include_directories(camlib PRIVATE ${PROJECT_SOURCE_DIR}/include)
 
-target_link_libraries(camlib PRIVATE ${Ruby_LIBRARY})
+target_link_libraries(camlib PRIVATE ${Ruby_LIBRARY} ${OpenCV_LIBS})
 
 install(TARGETS camlib DESTINATION .)

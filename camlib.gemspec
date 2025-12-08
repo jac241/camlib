@@ -30,6 +30,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = [ "lib" ]
   spec.extensions = [ "ext/CMakeLists.txt" ]
   spec.add_runtime_dependency('rice')
+  spec.add_development_dependency("rspec")
 
   # Uncomment to register a new dependency of your gem
   # spec.add_dependency "example-gem", "~> 1.0"

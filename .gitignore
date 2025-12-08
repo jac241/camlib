@@ -6,3 +6,12 @@
 /pkg/
 /spec/reports/
 /tmp/
+
+# Build artifacts
+/ext/gembuild/
+/lib/*.bundle
+/lib/*.so
+/lib/gem.build_complete
+
+*.gem
+.tool-versions

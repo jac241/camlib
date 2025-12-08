@@ -36,4 +36,4 @@ target_include_directories(camlib PRIVATE ${PROJECT_SOURCE_DIR}/include)
 
 target_link_libraries(camlib PRIVATE ${Ruby_LIBRARY} ${JEMALLOC_LIBRARIES} ${JEMALLOC_PREFIX}/lib/libjemalloc.dylib)
 
-install(TARGETS camlib DESTINATION .)
+install(TARGETS camlib DESTINATION lib)

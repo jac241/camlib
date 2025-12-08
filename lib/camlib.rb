@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "camlib.so"
 require_relative "camlib/version"
 
 module Camlib

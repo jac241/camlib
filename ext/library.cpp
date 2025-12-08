@@ -14,14 +14,15 @@ Object test_initialize(Object self)
 Object test_hello(Object /* self */)
 {
     String str("hello, world");
-    return str;
+    return str.value();
 }
 
 extern "C"
 void Init_camlib()
 {
-    Class rb_cCamlib =
-      define_class("Camlib")
+    Module rb_mCamlib = define_module("Camlib");
+    Class rb_cTest =
+      define_class_under(rb_mCamlib.value(), "Test")
       .define_method("initialize", &test_initialize)
       .define_method("hello", &test_hello);
 }

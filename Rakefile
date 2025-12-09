@@ -19,11 +19,22 @@ task :compile do
   # We use 'gembuild' to avoid conflicts with IDEs (like CLion) that might use 'build'
   build_dir = File.join('ext', 'gembuild')
   FileUtils.mkdir_p build_dir
-  
+
   Dir.chdir(build_dir) do
-    # Run cmake from the build directory, pointing to the parent (ext) for source
-    sh "cmake .."
-    sh "make"
+    cmake_command = "cmake .."
+
+    # Detect OS and apply appropriate preset
+    case RbConfig::CONFIG['host_os']
+    when /darwin/ # macOS
+      cmake_command += " --preset macos-release -B ."
+    when /linux/ # Linux
+      cmake_command += " --preset linux-release -B ."
+    else
+      puts "Warning: No specific CMake preset defined for #{RbConfig::CONFIG['host_os']}. Using default cmake command."
+    end
+
+    sh cmake_command
+    sh "cmake --build ."
   end
 
   # Copy the built artifact from the build_dir to the lib/ directory
@@ -31,11 +42,11 @@ task :compile do
   # We glob to find it.
   built_lib_glob = File.join(build_dir, "*.{bundle,so,dylib}")
   built_lib = Dir[built_lib_glob].first
-  
+
   if built_lib
     FileUtils.cp built_lib, 'lib/'
     puts "Copied #{built_lib} to lib/"
-    
+
     # Create a marker file to tell Bundler that the extension is built
     # This suppresses the "extensions are not built" warning when running bin/console
     FileUtils.touch 'lib/gem.build_complete'

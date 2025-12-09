@@ -5,12 +5,18 @@
 #include "Webcam.hpp"
 
 namespace camlib {
-    Webcam::Webcam() {
-        bool result = capture.open(0);
+    Webcam::Webcam(cv::VideoCapture &&cam) : capture(cam) {}
+
+    Webcam Webcam::acquire(int device_id = 0) {
+        cv::VideoCapture cam;
+        bool result = cam.open(device_id);
         if (!result) {
-            throw std::runtime_error("Error opening webcam 0");
+            throw std::runtime_error(std::format("Error opening webcam ID {}", device_id));
         }
+
+        return Webcam(std::move(cam));
     }
+
     std::string Webcam::read_frame() {
         cv::Mat frame;
         auto result = capture.read(frame);
@@ -24,6 +30,25 @@ namespace camlib {
         size_t data_size = frame.total() * frame.elemSize();
 
         // std::string copies the data
-        return {reinterpret_cast<char*>(frame.data), data_size};
+        return {reinterpret_cast<char *>(frame.data), data_size};
+    }
+    int Webcam::frame_width() const {
+        return static_cast<int>(capture.get(cv::CAP_PROP_FRAME_WIDTH));
+    }
+
+    int Webcam::frame_height() const {
+        return static_cast<int>(capture.get(cv::CAP_PROP_FRAME_HEIGHT));
+    }
+
+    int Webcam::frame_depth() const {
+        const int format = static_cast<int>(capture.get(cv::CAP_PROP_FORMAT));
+        return CV_MAT_DEPTH(format);
+    }
+    int Webcam::frame_channel_count() const {
+        const int format = static_cast<int>(capture.get(cv::CAP_PROP_FORMAT));
+        return CV_MAT_CN(format);
+    }
+    double Webcam::frame_rate() const {
+        return capture.get(cv::CAP_PROP_FPS);
     }
 } // namespace camlib

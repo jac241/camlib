@@ -7,6 +7,3 @@ gemspec
 
 gem "irb"
 gem "rake", "~> 13.0"
-gem "rice"
-gem "rake-compiler"
-gem "rspec"

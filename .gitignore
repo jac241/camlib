@@ -15,3 +15,8 @@
 
 *.gem
 .tool-versions
+*.mp4
+
+# IDE files
+.idea/
+/ext/.idea/

@@ -11,10 +11,20 @@ namespace camlib {
         cv::VideoCapture cam;
         bool result = cam.open(device_id);
         if (!result) {
-            throw std::runtime_error(std::format("Error opening webcam ID {}", device_id));
+            throw std::runtime_error(
+                    std::format("Error opening webcam ID {}", device_id));
         }
 
         return Webcam(std::move(cam));
+    }
+    bool Webcam::is_device_functioning(int device_id) {
+        try {
+            auto cam = acquire(device_id);
+            const auto result = cam.read_frame();
+            return !(result.empty());
+        } catch (const std::runtime_error &e) {
+            return false;
+        }
     }
 
     std::string Webcam::read_frame() {
@@ -48,7 +58,6 @@ namespace camlib {
         const int format = static_cast<int>(capture.get(cv::CAP_PROP_FORMAT));
         return CV_MAT_CN(format);
     }
-    double Webcam::frame_rate() const {
-        return capture.get(cv::CAP_PROP_FPS);
-    }
+    double Webcam::frame_rate() const { return capture.get(cv::CAP_PROP_FPS); }
+    void Webcam::release() { capture.release(); }
 } // namespace camlib

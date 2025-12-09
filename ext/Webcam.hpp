@@ -14,12 +14,14 @@ namespace camlib {
     public:
         static Webcam acquire(int device_id);
 
+        static bool is_device_functioning(int device_id);
         std::string read_frame();
         [[nodiscard]] int frame_width() const;
         [[nodiscard]] int frame_height() const;
         [[nodiscard]] int frame_depth() const;
         [[nodiscard]] int frame_channel_count() const;
         [[nodiscard]] double frame_rate() const;
+        void release();
     };
 
 } // namespace camlib

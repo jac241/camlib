@@ -15,6 +15,10 @@ extern "C" void Init_camlib() // Has to match module/gem name?
                     .define_singleton_function(
                             "acquire!", &camlib::Webcam::acquire,
                             Arg("device_id") = 0, Function().setNoGvl())
+                    .define_singleton_function(
+                            "device_functioning?",
+                            &camlib::Webcam::is_device_functioning,
+                            Function().setNoGvl())
                     .define_method("read_frame", &camlib::Webcam::read_frame,
                                    Function().setNoGvl())
                     .define_method("frame_width", &camlib::Webcam::frame_width)
@@ -23,5 +27,6 @@ extern "C" void Init_camlib() // Has to match module/gem name?
                     .define_method("frame_depth", &camlib::Webcam::frame_depth)
                     .define_method("frame_channel_count",
                                    &camlib::Webcam::frame_channel_count)
-                    .define_method("frame_rate", &camlib::Webcam::frame_rate);
+                    .define_method("frame_rate", &camlib::Webcam::frame_rate)
+                    .define_method("release", &camlib::Webcam::release);
 }

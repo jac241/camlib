@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require_relative "lib/camlib/version"
-require "rake"
 
 Gem::Specification.new do |spec|
   spec.name = "camlib"
